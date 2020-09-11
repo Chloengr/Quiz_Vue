@@ -26,12 +26,15 @@
     </section>
 
     <section v-if="questionsPart">
-      <h1>Question n°{{currentQuestion}} sur {{amount}}</h1>
-      <!-- <p v-for="q in questionTitle" v-bind:key="q.id">{{q.question}}</p> -->
-      <p>{{questionTitle[currentQuestion-1].question}}</p>
-      <button v-on:click="sendAnswer('True')">Vrai</button>
-      <button v-on:click="sendAnswer('False')">Faux</button>
-      <button @click="goBack">Recommencer</button>
+      <h1>Question n°{{b}} sur {{amount}}</h1>
+      <p v-for="q in questions.slice(a,b)" :key="q.id">
+        {{ decodeHtml(q.question)}}
+      </p>
+      <div class="multi-button">
+        <button v-on:click="sendAnswer('True')">Vrai</button>
+        <button v-on:click="sendAnswer('False')">Faux</button>
+        <button @click="goBack">Recommencer</button>
+      </div>
     </section>
 
     <section v-if="scorePart">
@@ -52,46 +55,23 @@ export default {
   },
   data(){
     return {
+      a:0,
+      b:1,
       homePart: false,
       questionsPart: false,
       scorePart: false,
       amount: 1,
       category: 10,
-      currentQuestion: 1,
-      questionTitle: [],
+      questions: [],
       score: 0,
       correctAnswers:0
     }
   },
   methods: {
-    handleData(){
-      axios
-        .get('https://opentdb.com/api.php?amount='+this.amount+'&category='+this.category+'&type=boolean', {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
-          }
-        )
-        .then(res => {
-          this.questionTitle = res.data.results
-        })
-    },
-    startQuiz(){
-      this.handleData()
-      this.homePart = false
-      this.questionsPart = true
-    },
-    sendAnswer(output){
-      console.log('My answer:' + output);
-      console.log(this.questionTitle[this.currentQuestion-1].correct_answer);
-      if((this.currentQuestion) < this.amount){
-        if(this.questionTitle[this.currentQuestion-1].correct_answer === output)
-          this.score=+1;
-
-        this.currentQuestion++
-      }
-      else {
-        this.questionsPart = false;
-        this.scorePart = true;
-      }
+    decodeHtml(html) {
+      var txt = document.createElement("textarea");
+      txt.innerHTML = html;
+      return txt.value;
     },
     goBack(){
       this.handleData(),
@@ -99,8 +79,44 @@ export default {
       this.questionsPart = false,
       this.scorePart = false,
       this.score = 0,
-      this.currentQuestion = 1
+      this.a = 0
+      this.b = 1
     },
+    handleData(){
+      axios
+        .get('https://opentdb.com/api.php?amount='+this.amount+'&category='+this.category+'&type=boolean', {
+          headers: { 'Content-Type': 'application/json;charset=utf-8'}
+          }
+        )
+        .then(res => {
+          this.questions = res.data.results
+        })
+    },
+    sendAnswer(output){
+      if(this.b < this.amount){
+        if(this.questions[this.a].correct_answer === output) {
+          this.score++;
+        }
+        this.a++,
+        this.b++
+      }
+      else if(this.b == this.amount){
+        if(this.questions[this.a].correct_answer === output) {
+          this.score++;
+        }
+        this.questionsPart = false;
+        this.scorePart = true;
+      }
+      else{
+        this.questionsPart = false;
+        this.scorePart = true;
+      }
+    },
+    startQuiz(){
+      this.handleData()
+      this.homePart = false
+      this.questionsPart = true
+    }
   }
 }
 </script>
@@ -109,16 +125,5 @@ export default {
 <style scoped>
 h3 {
   margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
 }
 </style>
