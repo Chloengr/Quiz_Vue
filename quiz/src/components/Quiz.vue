@@ -6,7 +6,7 @@
       <div class="choice">
         <div class="theme">
           <p>Quel thême ?</p>
-          <select v-model="category">
+          <select class="btn selectBtn" v-model="category">
             <option value="10">Littérature</option>
             <option value="11">Films</option>
             <option value="12">Musique</option>
@@ -19,28 +19,28 @@
         </div>
         <div class="number">
           <p>Combien de questions ?</p>
-          <input type="number" v-model="amount" min="1" max="30">
+          <input class="btn selectBtn" type="number" v-model="amount" min="1" max="30">
         </div>
       </div>
-      <button @click="startQuiz">C'est parti !</button>
+      <button class="btn startBtn" @click="startQuiz">C'est parti !</button>
     </section>
 
     <section v-if="questionsPart">
       <h1>Question n°{{b}} sur {{amount}}</h1>
-      <p v-for="q in questions.slice(a,b)" :key="q.id">
+      <p class="question" v-for="q in questions.slice(a,b)" :key="q.id">
         {{ decodeHtml(q.question)}}
       </p>
-      <div class="multi-button">
-        <button v-on:click="sendAnswer('True')">Vrai</button>
-        <button v-on:click="sendAnswer('False')">Faux</button>
-        <button @click="goBack">Recommencer</button>
+      <div>
+        <button class="btn" v-on:click="sendAnswer('True')">Vrai</button>
+        <button class="btn" v-on:click="sendAnswer('False')">Faux</button>
       </div>
+      <button class="btn startBtn" @click="goBack">Recommencer</button>
     </section>
 
     <section v-if="scorePart">
       <h1>C'est fini !</h1>
       <p>Vous avez eu {{score}} sur {{amount}}</p>
-      <button @click="goBack">Recommencer</button>
+      <button class="btn startBtn" @click="goBack">Recommencer</button>
     </section>
   </div>
 </template>
@@ -123,7 +123,30 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+h1, h3{
+  margin: 20px;
+}
+.btn{
+  border: none;
+  margin: 10px;
+  padding: 15px 35px;
+  text-align: center;
+  transition: 0.5s;
+  background-size: 200% auto;
+  box-shadow: 0 0 15px rgb(182, 182, 182);
+  border-radius: 10px;
+  font-size: 17px;
+}
+.choice{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.startBtn{
+  color: white;
+  background-image: linear-gradient(to right, #f6d365 0%, #fda085 51%, #f6d365 100%);
+}
+.question{
+  margin: 50px;
 }
 </style>
